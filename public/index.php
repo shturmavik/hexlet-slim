@@ -6,10 +6,13 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 
 $container = new Container();
-$container->set('renderer', function () {
-    // Параметром передается базовая директория, в которой будут храниться шаблоны
-    return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
-});
+$container->set(
+    'renderer',
+    function () {
+        // Параметром передается базовая директория, в которой будут храниться шаблоны
+        return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
+    }
+);
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
@@ -17,6 +20,16 @@ $app->get(
     '/',
     function ($request, $response) {
         return $response->write('Welcome to Slim!');
+    }
+);
+
+$users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
+
+$app->get(
+    '/users',
+    function ($request, $response) use ($users) {
+        $params = ['users' => $users];
+        return $this->get('renderer')->render($response, 'users/index.phtml', $params);
     }
 );
 
@@ -30,20 +43,6 @@ $app->get(
         return $this->get('renderer')->render($response, 'users/show.phtml', $params);
     }
 );
-$app->get(
-    '/users',
-    function ($request, $response) {
-        return $response->write('GET /users');
-    }
-);
-
-$app->post(
-    '/users',
-    function ($request, $response) {
-        return $response->withStatus(302);
-    }
-);
-
 
 $app->get(
     '/courses/{id}',

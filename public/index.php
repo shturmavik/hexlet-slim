@@ -4,6 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
 use DI\Container;
+use function Symfony\Component\String\s;
 
 $container = new Container();
 $container->set(
@@ -28,7 +29,11 @@ $users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
 $app->get(
     '/users',
     function ($request, $response) use ($users) {
-        $params = ['users' => $users];
+        $term = $request->getQueryParam('term');
+        $users = collect($users)->filter(
+            fn($user) => empty($term) ? true : s($user)->ignoreCase()->startsWith($term)
+        );
+        $params = ['users' => $users, 'term' => $term];
         return $this->get('renderer')->render($response, 'users/index.phtml', $params);
     }
 );

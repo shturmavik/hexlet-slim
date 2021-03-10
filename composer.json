@@ -1,4 +1,9 @@
 {
+    "autoload": {
+        "psr-4": {"App\\": "src/"},
+        "files": [
+        ]
+    },
     "require": {
         "slim/slim": "^4.7",
         "slim/psr7": "^1.3",

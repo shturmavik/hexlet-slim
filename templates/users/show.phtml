@@ -1,1 +1,5 @@
-<h1>Hello, <?= htmlspecialchars($id) ?></h1>
+<?php if ($nickname):?>
+<h1>Hello, <?= htmlspecialchars($nickname) ?></h1>
+<?php else: ?>
+Пользователь не найден
+<?php endif; ?>

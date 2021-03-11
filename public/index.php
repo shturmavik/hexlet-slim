@@ -16,6 +16,11 @@ $container->set(
         return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
     }
 );
+$container->set('flash', function () {
+    return new \Slim\Flash\Messages();
+});
+
+
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
@@ -24,12 +29,13 @@ $users = file_get_contents('./upload/users.txt');
 $app->get(
     '/users',
     function ($request, $response) use ($users) {
+        $messages = $this->get('flash')->getMessages();
         $users = json_decode($users, true);
         $term = $request->getQueryParam('term');
         $users = collect($users)->filter(
             fn($user) => empty($term) ? true : s($user['nickname'])->ignoreCase()->startsWith($term)
         );
-        $params = ['users' => $users, 'term' => $term];
+        $params = ['users' => $users, 'term' => $term, 'flash' => $messages];
         return $this->get('renderer')->render($response, 'users/index.phtml', $params);
     }
 )->setName('users');
@@ -75,6 +81,7 @@ $app->post(
 //            echo '<pre>';
 //            print_r($users);
 //            echo '</pre>';
+            $this->get('flash')->addMessage('success', 'Добавлен пользователь');
             file_put_contents('./upload/users.txt', json_encode($users));
             return $response->withRedirect($router->urlFor('users'), 302);
         }

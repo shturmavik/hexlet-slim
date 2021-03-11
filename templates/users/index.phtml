@@ -1,8 +1,15 @@
+<?php if (isset($flash['success'])): ?>
+    <?php foreach ($flash['success'] as $flash): ?>
+        <div class="success">
+            <?= $flash ?>
+        </div>
+    <?php endforeach ?>
+<?php endif ?>
 <form action="/users" method="get">
     <input type="search" name="term" value="<?= htmlspecialchars($term) ?>" />
     <input type="submit" value="Search" />
 </form>
 
 <?php foreach ($users as $user): ?>
-    <div><?=$user['nickname']?></div>
+    <div><?= $user['nickname'] ?></div>
 <?php endforeach ?>

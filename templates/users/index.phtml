@@ -22,8 +22,8 @@
 <?php endforeach ?>
 
 <div>
-    <?php if ($page['prev'] >= 0):?>
-        <a href="/posts?page=<?=$page['prev']?>">назад</a>
+    <?php if ($page['prev'] > 0):?>
+        <a href="/users?page=<?=$page['prev']?>">назад</a>
     <?php endif ?>
-    <a href="/posts?page=<?=$page['next']?>">вперёд</a>
+    <a href="/users?page=<?=$page['next']?>">вперёд</a>
 </div>

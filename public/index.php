@@ -39,7 +39,7 @@ $app->get(
             fn($user) => empty($term) ? true : s($user['nickname'])->ignoreCase()->startsWith($term)
         )->toArray();
 
-        $page = $request->getQueryParam('page') ?? '0';
+        $page = $request->getQueryParam('page') ?? '1';
         $slice = in_array($page, ['0', '1']) ? 0 : $page * 5 - 5;
         $users = array_slice($users, $slice, 5);
 

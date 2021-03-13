@@ -5,18 +5,20 @@ namespace App;
 class UserRepository
 {
     private array $users;
+    private array $v;
 
     public function __construct()
     {
         session_start();
         $fileUsers = file_get_contents('./upload/users.txt');
         $this->users = json_decode($fileUsers, true);
+        $this->fakerUser = Generator::generate(100);
     }
 
     public function all()
     {
 //        return array_values($_SESSION);
-        return $this->users;
+        return array_merge($this->users, $this->fakerUser);
     }
 
     public function find(string $nickname)

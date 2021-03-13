@@ -12,6 +12,7 @@
         "php-di/php-di": "^6.3",
         "tightenco/collect": "^8.19",
         "symfony/string": "^5.2",
-        "slim/flash": "^0.4.0"
+        "slim/flash": "^0.4.0",
+        "fzaninotto/faker": "^1.9"
     }
 }

@@ -1,0 +1,22 @@
+<form action="/users/<?= htmlspecialchars($user['nickname']) ?>" method="post">
+    <input type="hidden" name="_METHOD" value="PATCH">
+    <div>
+        <label>
+            Имя *
+            <input type="text" name="user[nickname]" value="<?= htmlspecialchars($user['nickname'] ?? ''); ?>">
+        </label>
+        <?php if (isset($errors['nickname'])): ?>
+            <div><?= $errors['nickname'] ?></div>
+        <?php endif ?>
+    </div>
+    <div>
+        <label>
+            Email *
+            <input type="text" name="user[email]" value="<?= htmlspecialchars($user['email'] ?? ''); ?>">
+        </label>
+        <?php if (isset($errors['email'])): ?>
+            <div><?= $errors['email'] ?></div>
+        <?php endif ?>
+    </div>
+    <input type="submit" value="Обновить">
+</form>

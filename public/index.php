@@ -2,10 +2,11 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Slim\Factory\AppFactory;
 use DI\Container;
-use function Symfony\Component\String\s;
 use App\Validator;
+use Slim\Factory\AppFactory;
+use function Symfony\Component\String\s;
+use Slim\Middleware\MethodOverrideMiddleware;
 
 $repo = new App\UserRepository();
 $container = new Container();
@@ -16,21 +17,22 @@ $container->set(
         return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
     }
 );
-$container->set('flash', function () {
-    return new \Slim\Flash\Messages();
-});
-
+$container->set(
+    'flash',
+    function () {
+        return new \Slim\Flash\Messages();
+    }
+);
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
-
-$users = file_get_contents('./upload/users.txt');
+$app->add(MethodOverrideMiddleware::class);
 
 $app->get(
     '/users',
-    function ($request, $response) use ($users) {
+    function ($request, $response) use ($repo) {
         $messages = $this->get('flash')->getMessages();
-        $users = json_decode($users, true);
+        $users = $repo->all();
         $term = $request->getQueryParam('term');
         $users = collect($users)->filter(
             fn($user) => empty($term) ? true : s($user['nickname'])->ignoreCase()->startsWith($term)
@@ -54,9 +56,8 @@ $app->get(
 
 $app->get(
     '/users/{nickname}',
-    function ($request, $response, $args) use ($users) {
-        $users = json_decode($users, true);
-        $user = collect($users)->firstWhere('nickname', $args['nickname']);
+    function ($request, $response, $args) use ($repo) {
+        $user = $repo->find($args['nickname']);
         $params = ['nickname' => ''];
         if (!$user) {
             return $this->get('renderer')->render($response->withStatus(404), 'users/show.phtml', $params);
@@ -70,19 +71,13 @@ $router = $app->getRouteCollector()->getRouteParser();
 
 $app->post(
     '/users',
-    function ($request, $response) use ($repo, $router, $users) {
+    function ($request, $response) use ($repo, $router) {
         $validator = new Validator();
         $user = $request->getParsedBodyParam('user');
         $errors = $validator->validate($user);
         if (count($errors) === 0) {
             $userId = $repo->save($user);
-            $user['id'] = $userId;
-            $users = array_merge( json_decode($users, true) ?? [], [$user]);
-//            echo '<pre>';
-//            print_r($users);
-//            echo '</pre>';
             $this->get('flash')->addMessage('success', 'Добавлен пользователь');
-            file_put_contents('./upload/users.txt', json_encode($users));
             return $response->withRedirect($router->urlFor('users'), 302);
         }
         $params = [
@@ -94,11 +89,53 @@ $app->post(
 );
 
 $app->get(
+    '/users/{nickname}/edit',
+    function ($request, $response, array $args) use ($repo) {
+        $nickname = $args['nickname'];
+        $user = $repo->find($nickname);
+        $params = [
+            'user'   => $user,
+            'errors' => []
+        ];
+        return $this->get('renderer')->render($response, 'users/edit.phtml', $params);
+    }
+)->setName('editUser');
+
+$app->patch(
+    '/users/{nickname}',
+    function ($request, $response, array $args) use ($router, $repo) {
+        $nickname = $args['nickname'];
+        $user = $repo->find($nickname);
+        $data = $request->getParsedBodyParam('user');
+
+        $validator = new Validator();
+        $errors = $validator->validate($data);
+
+        if (count($errors) === 0) {
+            $user['nickname'] = $data['nickname'];
+            $user['email'] = $data['email'];
+
+            $this->get('flash')->addMessage('success', 'User has been updated');
+            $repo->update($user);
+            $url = $router->urlFor('editUser', ['nickname' => $user['nickname']]);
+            return $response->withRedirect($url);
+        };
+
+        $params = [
+            'user'   => $user,
+            'errors' => $errors
+        ];
+
+        $response = $response->withStatus(422);
+        return $this->get('renderer')->render($response, 'users/edit.phtml', $params);
+    }
+);
+
+$app->get(
     '/',
     function ($request, $response) use ($router) {
         $router->urlFor('users'); // /users
         $router->urlFor('user', ['id' => 4]); // /users/4
-
         return $response->write('Welcome to Slim!');
     }
 );

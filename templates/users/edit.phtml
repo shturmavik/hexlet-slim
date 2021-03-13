@@ -1,5 +1,6 @@
 <form action="/users/<?= htmlspecialchars($user['nickname']) ?>" method="post">
     <input type="hidden" name="_METHOD" value="PATCH">
+    <input type="hidden" name="user[id]" value="<?= htmlspecialchars($user['id'] ?? ''); ?>">
     <div>
         <label>
             Имя *

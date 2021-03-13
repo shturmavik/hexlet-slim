@@ -11,5 +11,19 @@
 </form>
 
 <?php foreach ($users as $user): ?>
-    <div><?= $user['nickname'] ?></div>
+    <div>
+        <?= $user['nickname'] ?>
+        <?= $user['id'] ?>
+        <form action="/users/<?= $user['id'] ?>" method="post">
+            <input type="hidden" name="_METHOD" value="DELETE">
+            <input type="submit" value="Remove">
+        </form>
+    </div>
 <?php endforeach ?>
+
+<div>
+    <?php if ($page['prev'] >= 0):?>
+        <a href="/posts?page=<?=$page['prev']?>">назад</a>
+    <?php endif ?>
+    <a href="/posts?page=<?=$page['next']?>">вперёд</a>
+</div>

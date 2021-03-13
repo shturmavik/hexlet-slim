@@ -65,5 +65,16 @@ class UserRepository
         file_put_contents('./upload/users.txt', json_encode($user));
         return $item['id'];
     }
+
+    public function destroy(string $id)
+    {
+        $user = collect($this->users)->reject(
+            function ($user) use ($id) {
+                return $user['id'] === $id;
+            }
+        );
+        file_put_contents('./upload/users.txt', json_encode($user));
+        return true;
+    }
 }
 

@@ -33,15 +33,20 @@ $app->get(
     function ($request, $response) use ($repo) {
         $messages = $this->get('flash')->getMessages();
         $users = $repo->all();
+
         $term = $request->getQueryParam('term');
         $users = collect($users)->filter(
             fn($user) => empty($term) ? true : s($user['nickname'])->ignoreCase()->startsWith($term)
-        );
-        $params = ['users' => $users, 'term' => $term, 'flash' => $messages];
+        )->toArray();
+
+        $page = $request->getQueryParam('page') ?? '0';
+        $slice = in_array($page, ['0', '1']) ? 0 : $page * 5 - 5;
+        $users = array_slice($users, $slice, 5);
+
+        $params = ['users' => $users, 'term' => $term, 'flash' => $messages, 'page' => ['prev'=>$page-1, 'next'=>$page+1]];
         return $this->get('renderer')->render($response, 'users/index.phtml', $params);
     }
 )->setName('users');
-
 
 $app->get(
     '/users/new',
@@ -114,6 +119,7 @@ $app->patch(
         if (count($errors) === 0) {
             $user['nickname'] = $data['nickname'];
             $user['email'] = $data['email'];
+            $user['id'] = $data['id'];
 
             $this->get('flash')->addMessage('success', 'User has been updated');
             $repo->update($user);
@@ -130,6 +136,13 @@ $app->patch(
         return $this->get('renderer')->render($response, 'users/edit.phtml', $params);
     }
 );
+
+$app->delete('/users/{id}', function ($request, $response, array $args) use ($router, $repo) {
+    $id = $args['id'];
+    $repo->destroy($id);
+    $this->get('flash')->addMessage('success', 'User has been deleted');
+    return $response->withRedirect($router->urlFor('users'));
+});
 
 $app->get(
     '/',

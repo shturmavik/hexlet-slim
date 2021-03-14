@@ -66,9 +66,9 @@ $app->get(
 )->setName('user_new');
 
 $app->get(
-    '/users/{nickname}',
+    '/users/{id}',
     function ($request, $response, $args) use ($repo) {
-        $user = $repo->find($args['nickname']);
+        $user = $repo->find($args['id']);
         $params = ['nickname' => ''];
         if (!$user) {
             return $this->get('renderer')->render($response->withStatus(404), 'users/show.phtml', $params);
@@ -153,14 +153,6 @@ $app->delete(
     }
 );
 
-$app->get(
-    '/',
-    function ($request, $response) use ($router) {
-        $router->urlFor('users'); // /users
-        $router->urlFor('user', ['id' => 4]); // /users/4
-        return $response->write('Welcome to Slim!');
-    }
-);
 
 $app->get(
     '/cart',
@@ -206,4 +198,40 @@ $app->delete(
     }
 );
 
+$users = [
+    ['name' => 'admin', 'passwordDigest' => hash('sha256', 'secret')],
+    ['name' => 'mike', 'passwordDigest' => hash('sha256', 'superpass')],
+    ['name' => 'kate', 'passwordDigest' => hash('sha256', 'strongpass')]
+];
+
+$app->get('/', function($request, $response) {
+    $messages = $this->get('flash')->getMessages();
+    $params = [
+        'user'=> $_SESSION['user'] ?? ['name'=>''],
+        'flash'=> $messages
+    ];
+    $this->get('renderer')->setLayout('layout.php');
+    return $this->get('renderer')->render($response, 'index.phtml', $params);
+});
+
+$app->post('/session', function($request, $response) use ($users) {
+    $user = $request->getParsedBodyParam('user');
+    $findedUser = collect($users)->firstWhere('name', $user['name']);
+
+    if (!$findedUser || $findedUser['passwordDigest'] !== hash('sha256',$user['password'])) {
+        $this->get('flash')->addMessage('error', 'Wrong password or name.');
+        return $response->withRedirect('/', 302);
+    }
+    $_SESSION['user'] = $user;
+    unset($_SESSION['user']['password']);
+    return $response->withRedirect('/');
+});
+
+$app->delete(
+    '/session',
+    function ($request, $response) {
+        session_destroy();
+        return $response->withRedirect('/');
+    }
+);
 $app->run();

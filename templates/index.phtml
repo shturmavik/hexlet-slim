@@ -1,0 +1,42 @@
+<div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
+
+    <?php if (count($flash) > 0): ?>
+        <div class="py-3 px-5 mb-4 bg-red-100 text-red-900 text-sm rounded-md border border-red-200">
+            <ul class="flex">
+                <?php foreach ($flash as $messages): ?>
+                    <?php foreach ($messages as $message): ?>
+                        <li><?= $message ?></li>
+                    <?php endforeach ?>
+                <?php endforeach ?>
+            </ul>
+        </div>
+
+    <?php endif ?>
+
+    <form action="/session" method="post">
+        <?php if ($user['name']): ?>
+            <input type="hidden" name="_METHOD" value="DELETE">
+        <?php endif ?>
+        <div class="mb-4">
+            <label class="block text-grey-darker text-sm font-bold mb-2" for="username">
+                Username -> admin
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="username"
+                   type="text"
+                   placeholder="Username"
+                   name="user[name]" value="<?= htmlspecialchars($user['name'] ?? '') ?>">
+        </div>
+        <div class="mb-6">
+            <label class="block text-grey-darker text-sm font-bold mb-2" for="password">
+                Password -> secret
+            </label>
+            <input class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3"
+                   id="password" type="password" placeholder="******************" name="user[password]">
+            <p class="text-red text-xs italic">Please choose a password.</p>
+        </div>
+        <div class="flex items-center justify-between">
+            <input class="bg-blue-400 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded" type="submit"
+                   value="<?= $user['name'] ? 'Sign Out' : 'Sign In' ?>">
+        </div>
+    </form>
+</div>

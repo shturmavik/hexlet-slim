@@ -21,12 +21,12 @@ class UserRepository
         return array_merge($this->users, $this->fakerUser);
     }
 
-    public function find(string $nickname)
+    public function find(string $id)
     {
-        $user = collect($this->users)->firstWhere('nickname', $nickname);
+        $user = collect($this->all())->firstWhere('id', $id);
 //        if (!isset($_SESSION[$id])) {
         if (!isset($user)) {
-            throw new \Exception("Wrong user nickname: {$nickname}");
+            throw new \Exception("Wrong user id: {$id}");
         }
 
 //        return $_SESSION[$id];

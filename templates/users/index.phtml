@@ -1,29 +1,107 @@
 <?php if (isset($flash['success'])): ?>
     <?php foreach ($flash['success'] as $flash): ?>
-        <div class="success">
-            <?= $flash ?>
+        <div class="py-3 px-5 mb-4 bg-green-100 text-green-900 text-sm rounded-md border border-green-200">
+            <ul class="flex">
+                <li><?= $flash ?></li>
+            </ul>
         </div>
     <?php endforeach ?>
 <?php endif ?>
-<form action="/users" method="get">
-    <input type="search" name="term" value="<?= htmlspecialchars($term) ?>" />
-    <input type="submit" value="Search" />
-</form>
+<div
+    class="mx-auto w-full lg:w-5/6 bg-gray-100 flex items-center justify-center bg-gray-100 font-sans overflow-hidden">
+    <form action="/users" method="get" class="w-full">
+        <div class="shadow flex">
+            <input type="search" name="term" class="w-full rounded p-2" value="<?= htmlspecialchars($term) ?>" placeholder="Search...">
+            <input type="submit" class="bg-white w-auto flex justify-end items-center text-blue-500 p-2 hover:text-blue-400"
+                   value="Search">
+        </div>
+    </form>
+</div>
 
-<?php foreach ($users as $user): ?>
-    <div>
-        <?= $user['nickname'] ?>
-        <?= $user['id'] ?>
-        <form action="/users/<?= $user['id'] ?>" method="post">
-            <input type="hidden" name="_METHOD" value="DELETE">
-            <input type="submit" value="Remove">
-        </form>
+<div class="overflow-x-auto">
+    <div
+        class="min-w-screen min-h-screen bg-gray-100 flex items-center justify-center bg-gray-100 font-sans overflow-hidden">
+        <div class="w-full lg:w-5/6">
+            <div class="bg-white shadow-md rounded my-6">
+                <table class="min-w-max w-full table-auto">
+                    <thead>
+                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">Client</th>
+                        <th class="py-3 px-6 text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm font-light">
+                    <?php foreach ($users as $user): ?>
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left">
+                                <div class="flex items-center">
+                                    <div class="mr-2">
+                                        <img class="w-6 h-6 rounded-full"
+                                             src="https://randomuser.me/api/portraits/men/3.jpg" />
+                                    </div>
+                                    <span><?= $user['nickname'] ?></span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-6 text-center">
+                                <div class="flex item-center justify-center">
+                                    <div class="mr-2 transform hover:text-purple-500 hover:scale-110">
+                                        <a href="/users/<?= $user['id'] ?>/edit">Edit</a>
+                                    </div>
+                                    <div class="mr-2 transform hover:text-purple-500 hover:scale-110">
+                                        <a href="/users/<?= $user['id'] ?>">View</a>
+                                    </div>
+                                    <div class="mr-2 transform hover:text-purple-500 hover:scale-110">
+                                        <form action="/users/<?= $user['id'] ?>" method="post">
+                                            <input type="hidden" name="_METHOD" value="DELETE">
+                                            <input type="submit" value="Remove">
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-<?php endforeach ?>
+</div>
 
-<div>
-    <?php if ($page['prev'] > 0):?>
-        <a href="/users?page=<?=$page['prev']?>">назад</a>
-    <?php endif ?>
-    <a href="/users?page=<?=$page['next']?>">вперёд</a>
+<div class="row">
+    <div class="w-full mx-auto">
+        <div class="sm:grid grid-cols-4 gap-5 mx-auto px-16">
+            <?php if ($page['prev'] > 0): ?>
+            <div class="col-start-1 col-end-3 my-2">
+                <a href="/users?page=<?= $page['prev'] ?>">
+                    <div
+                        class="h-full p-6 dark:bg-gray-800 bg-white hover:shadow-xl rounded border-b-4 border-red-500 shadow-md">
+                        <h3 class="text-2xl mb-3 font-semibold inline-flex">
+                            <svg class="mr-2" width="24" height="30" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M1.02698 11.9929L5.26242 16.2426L6.67902 14.8308L4.85766 13.0033L22.9731 13.0012L22.9728 11.0012L4.85309 11.0033L6.6886 9.17398L5.27677 7.75739L1.02698 11.9929Z"
+                                    fill="currentColor" /></svg>
+                            Prev
+                        </h3>
+                    </div>
+                </a>
+            </div>
+            <?php endif ?>
+            <div class="col-end-5 col-span-2 my-2">
+                <a href="/users?page=<?= $page['next'] ?>">
+                    <div
+                        class="h-full p-6 dark:bg-gray-800 bg-white hover:shadow-xl rounded border-b-4 border-red-500 shadow-md text-right">
+                        <h3 class="text-2xl mb-3 font-semibold inline-flex ">
+                            Next
+                            <svg class="ml-2" width="24" height="30" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M23.0677 11.9929L18.818 7.75739L17.4061 9.17398L19.2415 11.0032L0.932469 11.0012L0.932251 13.0012L19.2369 13.0032L17.4155 14.8308L18.8321 16.2426L23.0677 11.9929Z"
+                                    fill="currentColor" /></svg>
+                        </h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

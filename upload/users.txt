@@ -1,1 +1,1 @@
-{"2":{"nickname":"gg","email":"gdf","id":"604a4394a2d31"},"3":{"nickname":"ivan","email":"tes2323t@tes.ru","id":"604d171747c69"}}
+{"2":{"nickname":"gg","email":"gdf","id":"604a4394a2d31"}}

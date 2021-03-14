@@ -31,7 +31,6 @@ $app->add(MethodOverrideMiddleware::class);
 $app->get(
     '/users',
     function ($request, $response) use ($repo) {
-
         $messages = $this->get('flash')->getMessages();
         $users = $repo->all();
 
@@ -44,7 +43,12 @@ $app->get(
         $slice = in_array($page, ['0', '1']) ? 0 : $page * 5 - 5;
         $users = array_slice($users, $slice, 5);
 
-        $params = ['users' => $users, 'term' => $term, 'flash' => $messages, 'page' => ['prev'=>$page-1, 'next'=>$page+1]];
+        $params = [
+            'users' => $users,
+            'term'  => $term,
+            'flash' => $messages,
+            'page'  => ['prev' => $page - 1, 'next' => $page + 1]
+        ];
         $this->get('renderer')->setLayout('layout.php');
         return $this->get('renderer')->render($response, 'users/index.phtml', $params);
     }
@@ -139,12 +143,15 @@ $app->patch(
     }
 );
 
-$app->delete('/users/{id}', function ($request, $response, array $args) use ($router, $repo) {
-    $id = $args['id'];
-    $repo->destroy($id);
-    $this->get('flash')->addMessage('success', 'User has been deleted');
-    return $response->withRedirect($router->urlFor('users'));
-});
+$app->delete(
+    '/users/{id}',
+    function ($request, $response, array $args) use ($router, $repo) {
+        $id = $args['id'];
+        $repo->destroy($id);
+        $this->get('flash')->addMessage('success', 'User has been deleted');
+        return $response->withRedirect($router->urlFor('users'));
+    }
+);
 
 $app->get(
     '/',
@@ -152,6 +159,50 @@ $app->get(
         $router->urlFor('users'); // /users
         $router->urlFor('user', ['id' => 4]); // /users/4
         return $response->write('Welcome to Slim!');
+    }
+);
+
+$app->get(
+    '/cart',
+    function ($request, $response) {
+        $cart = json_decode($request->getCookieParam('cart', json_encode([])), true);
+        $params = [
+            'cart' => $cart
+        ];
+        return $this->get('renderer')->render($response, 'cart/index.phtml', $params);
+    }
+);
+
+$app->post(
+    '/cart/cart-items',
+    function ($request, $response) {
+        // Информация о добавляемом товаре
+        $product = $request->getParsedBodyParam('item');
+        $product['count'] = 1;
+        // Данные корзины
+        $cart = json_decode($request->getCookieParam('cart', json_encode([])), true);
+
+        $id = $product['id'];
+        if (!isset($cart[$id])) {
+            $cart[$id] = $product;
+        } else {
+            ++$cart[$id]['count'];
+        }
+
+        // Кодирование корзины
+        $encodedCart = json_encode($cart);
+
+        // Установка новой корзины в куку
+        return $response->withHeader('Set-Cookie', "cart={$encodedCart}")
+            ->withRedirect('/cart');
+    }
+);
+
+$app->delete(
+    '/cart/cart-items',
+    function ($request, $response, array $args) {
+        return $response->withHeader('Set-Cookie', "cart={}")
+            ->withRedirect('/cart');
     }
 );
 

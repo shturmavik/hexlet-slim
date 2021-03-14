@@ -31,6 +31,7 @@ $app->add(MethodOverrideMiddleware::class);
 $app->get(
     '/users',
     function ($request, $response) use ($repo) {
+
         $messages = $this->get('flash')->getMessages();
         $users = $repo->all();
 
@@ -44,6 +45,7 @@ $app->get(
         $users = array_slice($users, $slice, 5);
 
         $params = ['users' => $users, 'term' => $term, 'flash' => $messages, 'page' => ['prev'=>$page-1, 'next'=>$page+1]];
+        $this->get('renderer')->setLayout('layout.php');
         return $this->get('renderer')->render($response, 'users/index.phtml', $params);
     }
 )->setName('users');

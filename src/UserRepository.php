@@ -10,7 +10,7 @@ class UserRepository
     public function __construct()
     {
         session_start();
-        $fileUsers = file_get_contents('./upload/users.txt');
+        $fileUsers = file_get_contents(__DIR__.'/../upload/users.txt');
         $this->users = json_decode($fileUsers, true);
         $this->fakerUser = Generator::generate(100);
     }
@@ -42,7 +42,7 @@ class UserRepository
         $item['id'] = uniqid();
 //        $_SESSION[$item['id']] = $item;
         $users = array_merge($this->all() ?? [], [$item]);
-        file_put_contents('./upload/users.txt', json_encode($users));
+        file_put_contents(__DIR__.'/../upload/users.txt', json_encode($users));
         return $item['id'];
     }
 
@@ -64,7 +64,7 @@ class UserRepository
                 return $user;
             }
         );
-        file_put_contents('./upload/users.txt', json_encode($user));
+        file_put_contents(__DIR__.'/../upload/users.txt', json_encode($user));
         return $item['id'];
     }
 
@@ -75,7 +75,7 @@ class UserRepository
                 return $user['id'] === $id;
             }
         );
-        file_put_contents('./upload/users.txt', json_encode($user));
+        file_put_contents(__DIR__.'/../upload/users.txt', json_encode($user));
         return true;
     }
 }
